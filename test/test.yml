@@ -1,0 +1,10 @@
+# Standards: 0.1
+---
+- name: Test Playbook
+
+  hosts: all
+
+  become: yes
+
+  roles:
+  - hdp

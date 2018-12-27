@@ -1,0 +1,26 @@
+# Standards: 0.1
+galaxy_info:
+
+  author: "Ben Dalling"
+
+  description: "Ansible role to setup Hadoop in Pseudo-Distributed mode."
+
+  company:  "League of Crafty Programmers Ltd"
+
+  github_branch: master
+
+  license: GPLv3
+
+  min_ansible_version: 2.6.0.0
+
+  galaxy_tags:
+  - apache
+  - hadoop
+  - ubuntu
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - xenial
+
+  dependencies: []

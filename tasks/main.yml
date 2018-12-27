@@ -1,0 +1,11 @@
+---
+- name: Install required packages
+  package:
+    name: "{{ item }}"
+  retries: 3
+  register: hdp_package_operation
+  until: hdp_package_operation is succeeded
+  with_items:
+  - openjdk-8-jdk-headless
+  - rsync
+  - ssh

@@ -1,0 +1,41 @@
+driver:
+  name: docker
+  use_sudo: false
+
+platforms:
+- name: ubuntu-16.04
+  driver_config:
+    platform: ubuntu
+    provision_command:
+    - apt-get install -y apt-utils libffi-dev python-pycparser python-apt python-dev python-pip
+    - pip install ansible==2.6.0.0
+
+provisioner:
+  additional_copy_path:
+  - test
+  ansible_inventory: test/inventory
+  ansible_verbose: true
+  ansible_verbosity: 3
+  hosts: all
+  name: ansible_playbook
+  require_ansible_repo: false
+  require_chef_for_busser: false
+  require_chef_omnibus: false
+  require_pip: false
+  role_name: hdp
+
+verifier:
+  name: inspec
+
+suites:
+- name: default
+  provisioner:
+    hostname: localhost
+    idempotency_test: true
+    playbook: test/test.yml
+
+- name: check
+  provisioner:
+    ansible_check: true
+    hostname: checkxenial
+    playbook: test/test.yml

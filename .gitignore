@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Kitchen stuff
+.kitchen/
+
+# Gemfile lock
+Gemfile.lock
