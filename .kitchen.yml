@@ -6,6 +6,12 @@ platforms:
 - name: ubuntu-16.04
   driver_config:
     platform: ubuntu
+    forward:
+    - 8032
+    - 8042
+    - 50030
+    - 50070
+    - 50075
     provision_command:
     - apt-get install -y apt-utils libffi-dev python-pycparser python-apt python-dev python-pip
     - pip install ansible==2.6.0.0
@@ -30,12 +36,10 @@ verifier:
 suites:
 - name: default
   provisioner:
-    hostname: localhost
     idempotency_test: true
     playbook: test/test.yml
 
 - name: check
   provisioner:
     ansible_check: true
-    hostname: checkxenial
     playbook: test/test.yml

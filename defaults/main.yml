@@ -1,3 +1,5 @@
 ---
 hpd_hadoop_directory: /opt/hadoop
 hpd_hadoop_version: 2.9.2
+
+hdp_download_url: 

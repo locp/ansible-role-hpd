@@ -16,7 +16,8 @@ lint:
 	  handlers/main.yml \
 	  meta/main.yml \
 	  tasks/main.yml \
-	  test/test.yml
+	  test/test.yml \
+	  vars/main.yml
 
 kitchen_tests:
 	bundle exec kitchen create

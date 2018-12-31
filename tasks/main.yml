@@ -1,11 +1,123 @@
 ---
+- name: Check if Hadoop is Installed
+  stat:
+    path: /opt/hadoop/bin
+  register: hdp_hadoop_status
+
 - name: Install required packages
   package:
     name: "{{ item }}"
-  retries: 3
-  register: hdp_package_operation
-  until: hdp_package_operation is succeeded
+  retries: 10
+  delay: 30
+  register: hdp_task_status
+  until: hdp_task_status is succeeded
   with_items:
+  - monit
+  - net-tools
   - openjdk-8-jdk-headless
   - rsync
   - ssh
+
+- name: Hadoop Group
+  group:
+    name: hadoop
+
+- name: Hadoop Users
+  user:
+    name: "{{ item }}"
+    comment: "{{ hpd_users[item].comment }}"
+    group: hadoop
+  with_items: "{{ hpd_users.keys() }}"
+
+- name: Hadoop Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: hadoop
+    group: hadoop
+    mode: 0775
+  with_items:
+  - /etc/hadoop
+  - /etc/hadoop/gpg
+  - /opt/hadoop
+  - /opt/hadoop/logs
+
+- name: Download Hadoop GPG Keys
+  get_url:
+    url: https://dist.apache.org/repos/dist/release/hadoop/common/KEYS
+    dest: /etc/hadoop/gpg/KEYS
+    owner: hadoop
+    group: hadoop
+    mode: 0440
+  notify:
+  - import-gpg-keys
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Import Hadoop GPG Keys
+  meta: flush_handlers
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Apache GeoIP API
+  uri:
+    return_content: yes
+    url: 'https://www.apache.org/dyn/closer.cgi?as_json=1'
+  register: hdp_task_status
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Download Hadoop GPG Signature
+  get_url:
+    url: "https://dist.apache.org/repos/dist/release/hadoop/common/hadoop-{{ hpd_hadoop_version }}/hadoop-{{ hpd_hadoop_version }}.tar.gz.asc"
+    dest: "/etc/hadoop/gpg/hadoop-{{ hpd_hadoop_version }}.tar.gz.asc"
+    owner: hadoop
+    group: hadoop
+    mode: 0644
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Download Hadoop Archive
+  get_url:
+    url: "{{ hdp_task_status.json['preferred'] }}/hadoop/common/hadoop-{{ hpd_hadoop_version }}/hadoop-{{ hpd_hadoop_version }}.tar.gz"
+    dest: "/tmp/hadoop-{{ hpd_hadoop_version }}.tar.gz"
+    mode: 0440
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Extract Hadoop
+  unarchive:
+    creates: /opt/hadoop/bin
+    dest: /opt
+    group: hadoop
+    owner: hadoop
+    src: "/tmp/hadoop-{{ hpd_hadoop_version }}.tar.gz"
+    extra_opts:
+    - --transform
+    - "s/^hadoop-{{ hpd_hadoop_version }}/hadoop/"
+  notify:
+  - format-hdfs
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Deploy Hadoop Configuration Files
+  copy:
+    src: "files/{{ item }}"
+    dest: "/{{ item }}"
+    owner: hadoop
+    group: hadoop
+    mode: "{{ hdp_files[item].mode }}"
+  notify:
+  - restart-monit
+  with_items: "{{ hdp_files.keys() }}"
+
+- name: Format HDFS
+  meta: flush_handlers
+  when:
+  - not hdp_hadoop_status.stat.exists
+
+- name: Monit Service
+  service:
+    name: monit
+    state: running
+    enabled: true

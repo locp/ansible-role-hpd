@@ -1,0 +1,28 @@
+---
+hdp_files:
+  etc/hadoop/capacity-scheduler.xml:
+    mode: "u=rw,go=r"
+  etc/hadoop/core-site.xml:
+    mode: "u=rw,go=r"
+  etc/hadoop/hdfs-site.xml:
+    mode: "u=rw,go=r"
+  etc/hadoop/mapred-site.xml:
+    mode: "u=rw,go=r"
+  etc/hadoop/yarn-site.xml:
+    mode: "u=rw,go=r"
+  etc/monit/conf.d/hadoop.conf:
+    mode: "u=rw,go=r"
+  etc/profile.d/hadoop.sh:
+    mode: "u=rwx,go=rx"
+  usr/local/bin/hadoopctl:
+    mode: "u=rwx,go=rx"
+
+hpd_users:
+  hadoop:
+    comment: "Hadoop User"
+  hdfs:
+    comment: "HDFS User"
+  mapred:
+    comment: "MapReduce User"
+  yarn:
+    comment: "YARN User"

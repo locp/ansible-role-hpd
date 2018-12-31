@@ -1,0 +1,60 @@
+#!/bin/bash -e
+#############################################################################
+# A wrapper script for running the Hadoop services while ensuring that the
+# environment variables are set.
+#############################################################################
+
+# Static variables
+ACTION="$1"
+PROG=$( basename $0 )
+SERVICE="$2"
+
+function usage_message() {
+  if [ -z "$1" ]; then
+    status=2
+  else
+    status="$1"
+  fi
+
+  echo "usage: $PROG help"
+  echo "       $PROG start datanode"
+  echo "       $PROG stop datanode"
+  echo "       $PROG start mapred"
+  echo "       $PROG stop mapred"
+  echo "       $PROG start namenode"
+  echo "       $PROG stop namenode"
+  echo "       $PROG start nodemanager"
+  echo "       $PROG stop nodemanager"
+  echo "       $PROG start resourcemanager"
+  echo "       $PROG stop resourcemanager"
+  exit $status
+}
+
+# Main processing starts here.
+source /etc/profile.d/hadoop.sh
+
+if [[ "$ACTION" == 'help' && $# == 1 ]]; then
+  usage_message 0
+elif [[ $# == 2 ]]; then
+  case $ACTION in
+    start) true ;;
+    stop) true ;;
+    *) usage_message ;;
+  esac
+
+  case $SERVICE in
+    datanode) su -c "/opt/hadoop/sbin/hadoop-daemon.sh $ACTION datanode" hdfs ;;
+    namenode) su -c "/opt/hadoop/sbin/hadoop-daemon.sh $ACTION namenode" hdfs ;;
+    resourcemanager) su -c "/opt/hadoop/sbin/yarn-daemon.sh $ACTION resourcemanager" yarn ;;
+    nodemanager) su -c "/opt/hadoop/sbin/yarn-daemon.sh $ACTION nodemanager" yarn ;;
+    mapred)
+      su -c "/opt/hadoop/bin/hdfs dfs -mkdir -p /user/history" hdfs
+      su -c "/opt/hadoop/bin/hdfs dfs -chmod -R 1777 /user/history" hdfs
+      su -c "/opt/hadoop/bin/hdfs dfs -chown mapred:hadoop /user/history" hdfs
+      su -c "/opt/hadoop/sbin/mr-jobhistory-daemon.sh $ACTION historyserver" mapred
+      ;;
+    *) usage_message ;;
+  esac
+else
+  usage_message
+fi

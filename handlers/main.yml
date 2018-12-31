@@ -1,1 +1,16 @@
 ---
+- name: import-gpg-keys
+  command: /usr/bin/gpg --homedir=/root/.gnupg --import /etc/hadoop/gpg/KEYS
+
+- name: format-hdfs
+  command: /opt/hadoop/bin/hdfs namenode -format -nonInteractive
+  become: yes
+  become_user: hdfs
+  environment:
+    HADOOP_CONF_DIR: /etc/hadoop
+    JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64/jre
+
+- name: restart-monit
+  service:
+    name: monit
+    state: restarted
