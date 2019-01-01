@@ -7,11 +7,11 @@ platforms:
   driver_config:
     platform: ubuntu
     forward:
-    - 8032
-    - 8042
-    - 50030
-    - 50070
-    - 50075
+    - 8042:8042
+    - 8088:8088
+    - 9864:9864
+    - 9870:9870
+    - 19888:19888
     provision_command:
     - apt-get install -y apt-utils libffi-dev python-pycparser python-apt python-dev python-pip
     - pip install ansible==2.6.0.0

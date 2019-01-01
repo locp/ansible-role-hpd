@@ -6,8 +6,19 @@
 
 # Static variables
 ACTION="$1"
+HISTORYSERVER_PID_FILE=/tmp/hadoop-mapred-historyserver.pid
 PROG=$( basename $0 )
 SERVICE="$2"
+
+function stop_historyserver() {
+  if [ -f $HISTORYSERVER_PID_FILE ]; then
+    pid=$( cat $HISTORYSERVER_PID_FILE )
+    kill $pid
+  else
+    echo "ERROR: No PID file found at $HISTORYSERVER_PID_FILE"
+    exit 1
+  fi
+}
 
 function usage_message() {
   if [ -z "$1" ]; then
@@ -43,15 +54,22 @@ elif [[ $# == 2 ]]; then
   esac
 
   case $SERVICE in
-    datanode) su -c "/opt/hadoop/sbin/hadoop-daemon.sh $ACTION datanode" hdfs ;;
-    namenode) su -c "/opt/hadoop/sbin/hadoop-daemon.sh $ACTION namenode" hdfs ;;
-    resourcemanager) su -c "/opt/hadoop/sbin/yarn-daemon.sh $ACTION resourcemanager" yarn ;;
-    nodemanager) su -c "/opt/hadoop/sbin/yarn-daemon.sh $ACTION nodemanager" yarn ;;
+    datanode) su -c "/opt/hadoop/bin/hdfs --daemon $ACTION datanode" hdfs ;;
+    namenode) su -c "/opt/hadoop/bin/hdfs --daemon $ACTION namenode" hdfs ;;
+    resourcemanager) su -c "/opt/hadoop/bin/yarn --daemon $ACTION resourcemanager" yarn ;;
+    nodemanager) su -c "/opt/hadoop/bin/yarn --daemon $ACTION nodemanager" yarn ;;
     mapred)
-      su -c "/opt/hadoop/bin/hdfs dfs -mkdir -p /user/history" hdfs
-      su -c "/opt/hadoop/bin/hdfs dfs -chmod -R 1777 /user/history" hdfs
-      su -c "/opt/hadoop/bin/hdfs dfs -chown mapred:hadoop /user/history" hdfs
-      su -c "/opt/hadoop/sbin/mr-jobhistory-daemon.sh $ACTION historyserver" mapred
+      case $ACTION in
+        start)
+          # Ensure a directory exists for the history in HDFS
+          su -c "/opt/hadoop/bin/hdfs dfs -mkdir -p /user/history" hdfs
+          su -c "/opt/hadoop/bin/hdfs dfs -chmod -R 1777 /user/history" hdfs
+          su -c "/opt/hadoop/bin/hdfs dfs -chown mapred:hadoop /user/history" hdfs
+          su -c "/opt/hadoop/bin/mapred historyserver >> /opt/hadoop/logs/hadoop-mapred-historyserver.log 2>> /opt/hadoop/logs/hadoop-mapred-historyserver.err" mapred &
+          ;;
+        stop) stop_historyserver ;;
+        *) usage_message ;;
+      esac
       ;;
     *) usage_message ;;
   esac

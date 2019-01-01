@@ -1,6 +1,4 @@
-HADOOP_CONF_DIR=/etc/hadoop
-HADOOP_HOME=/opt/hadoop
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
-YARN_CONF_DIR=$HADOOP_CONF_DIR
-export HADOOP_CONF_DIR HADOOP_HOME JAVA_HOME PATH YARN_CONF_DIR
+export HADOOP_CONF_DIR=/etc/hadoop
+export HADOOP_HOME=/opt/hadoop
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin

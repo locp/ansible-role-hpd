@@ -119,5 +119,5 @@
 - name: Monit Service
   service:
     name: monit
-    state: running
+    state: started
     enabled: true
