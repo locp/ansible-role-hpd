@@ -35,12 +35,8 @@
     state: directory
     owner: hadoop
     group: hadoop
-    mode: 0775
-  with_items:
-  - /etc/hadoop
-  - /etc/hadoop/gpg
-  - /opt/hadoop
-  - /opt/hadoop/logs
+    mode: "{{ hdp_directories[item].mode | default('ug=rwx,o=rx') }}"
+  with_items: "{{ hdp_directories.keys() }}"
 
 - name: Download Hadoop GPG Keys
   get_url:

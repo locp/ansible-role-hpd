@@ -38,8 +38,3 @@ suites:
   provisioner:
     idempotency_test: true
     playbook: test/test.yml
-
-- name: check
-  provisioner:
-    ansible_check: true
-    playbook: test/test.yml

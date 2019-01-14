@@ -1,4 +1,11 @@
 ---
+hdp_directories:
+  /etc/hadoop:
+  /etc/hadoop/gpg:
+  /opt/hadoop:
+    mode: "u=rwx,go=rx"
+  /opt/hadoop/logs:
+
 hdp_files:
   etc/hadoop/capacity-scheduler.xml:
     mode: "u=rw,go=r"
