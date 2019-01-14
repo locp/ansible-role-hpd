@@ -13,10 +13,7 @@
   until: hdp_task_status is succeeded
   with_items:
   - monit
-  - net-tools
   - openjdk-8-jdk-headless
-  - rsync
-  - ssh
 
 - name: Hadoop Group
   group:
